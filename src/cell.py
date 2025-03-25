@@ -21,18 +21,25 @@ class Cell:
     self._y1 = y1
     self._y2 = y2
 
-    if self.has_left_wall:
-      line = Line(Point(x1, y1), Point(x1, y2))
-      self._win.draw_line(line)
-    if self.has_top_wall:
-      line = Line(Point(x1, y1), Point(x2, y1))
-      self._win.draw_line(line)
-    if self.has_right_wall:
-      line = Line(Point(x2, y1), Point(x2, y2))
-      self._win.draw_line(line)
-    if self.has_bottom_wall:
-      line = Line(Point(x1, y2), Point(x2, y2))
-      self._win.draw_line(line)
+    # Left wall
+    line = Line(Point(x1, y1), Point(x1, y2))
+    color = "black" if self.has_left_wall else "white"
+    self._win.draw_line(line, color)
+    
+    # Top wall
+    line = Line(Point(x1, y1), Point(x2, y1))
+    color = "black" if self.has_top_wall else "white"
+    self._win.draw_line(line, color)
+    
+    # Right wall
+    line = Line(Point(x2, y1), Point(x2, y2))
+    color = "black" if self.has_right_wall else "white"
+    self._win.draw_line(line, color)
+    
+    # Bottom wall
+    line = Line(Point(x1, y2), Point(x2, y2))
+    color = "black" if self.has_bottom_wall else "white"
+    self._win.draw_line(line, color)
 
   def draw_move(self, to_cell, undo=False):
     half_length = abs(self._x2 - self._x1) // 2

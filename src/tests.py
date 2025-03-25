@@ -25,11 +25,26 @@ class Tests(unittest.TestCase):
     for i in range(num_rows):
         for j in range(num_cols):
             self.assertIsNotNone(m1._cells[i][j])
-            # Test that each cell has all walls by default
-            self.assertTrue(m1._cells[i][j].has_left_wall)
-            self.assertTrue(m1._cells[i][j].has_right_wall)
-            self.assertTrue(m1._cells[i][j].has_top_wall)
-            self.assertTrue(m1._cells[i][j].has_bottom_wall)
+            
+            # Check walls - accounting for entrance and exit
+            if i == 0 and j == 0:
+                # Entrance cell (top-left) should have top wall removed
+                self.assertFalse(m1._cells[i][j].has_top_wall)
+                self.assertTrue(m1._cells[i][j].has_left_wall)
+                self.assertTrue(m1._cells[i][j].has_right_wall)
+                self.assertTrue(m1._cells[i][j].has_bottom_wall)
+            elif i == num_rows-1 and j == num_cols-1:
+                # Exit cell (bottom-right) should have bottom wall removed
+                self.assertTrue(m1._cells[i][j].has_top_wall)
+                self.assertTrue(m1._cells[i][j].has_left_wall)
+                self.assertTrue(m1._cells[i][j].has_right_wall)
+                self.assertFalse(m1._cells[i][j].has_bottom_wall)
+            else:
+                # All other cells should have all walls
+                self.assertTrue(m1._cells[i][j].has_left_wall)
+                self.assertTrue(m1._cells[i][j].has_right_wall)
+                self.assertTrue(m1._cells[i][j].has_top_wall)
+                self.assertTrue(m1._cells[i][j].has_bottom_wall)
 
   def test_maze_without_window(self):
     num_cols = 3
@@ -89,6 +104,28 @@ class Tests(unittest.TestCase):
     self.assertEqual(m1._cells[1][1]._y1, expected_positions[3][1])
     self.assertEqual(m1._cells[1][1]._x2, expected_positions[3][2])
     self.assertEqual(m1._cells[1][1]._y2, expected_positions[3][3])
+
+  def test_break_entrance_and_exit(self):
+    num_cols = 5
+    num_rows = 5
+    
+    # Create a maze
+    m1 = Maze(0, 0, num_rows, num_cols, 10, 10)
+    
+    # Check that entrance (top-left cell) has its top wall removed
+    self.assertFalse(m1._cells[0][0].has_top_wall)
+    
+    # Check that exit (bottom-right cell) has its bottom wall removed
+    self.assertFalse(m1._cells[num_rows-1][num_cols-1].has_bottom_wall)
+    
+    # Verify other walls are still intact
+    self.assertTrue(m1._cells[0][0].has_left_wall)
+    self.assertTrue(m1._cells[0][0].has_right_wall)
+    self.assertTrue(m1._cells[0][0].has_bottom_wall)
+    
+    self.assertTrue(m1._cells[num_rows-1][num_cols-1].has_left_wall)
+    self.assertTrue(m1._cells[num_rows-1][num_cols-1].has_right_wall)
+    self.assertTrue(m1._cells[num_rows-1][num_cols-1].has_top_wall)
 
 if __name__ == "__main__":
   unittest.main()

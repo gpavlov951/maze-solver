@@ -22,6 +22,7 @@ class Maze:
         self._cells = []
         
         self._create_cells()
+        self._break_entrance_and_exit()
     
     def _create_cells(self):
         # Initialize the cells as a 2D grid (list of lists)
@@ -31,6 +32,15 @@ class Maze:
         for i in range(self._num_rows):
             for j in range(self._num_cols):
                 self._draw_cell(i, j)
+    
+    def _break_entrance_and_exit(self):
+        # Break the top wall of the entrance cell (top-left)
+        self._cells[0][0].has_top_wall = False
+        self._draw_cell(0, 0)
+        
+        # Break the bottom wall of the exit cell (bottom-right)
+        self._cells[self._num_rows-1][self._num_cols-1].has_bottom_wall = False
+        self._draw_cell(self._num_rows-1, self._num_cols-1)
     
     def _draw_cell(self, i, j):
         # Check if win exists
