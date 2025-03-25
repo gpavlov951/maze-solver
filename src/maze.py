@@ -29,6 +29,86 @@ class Maze:
         self._create_cells()
         self._break_entrance_and_exit()
         self._break_walls()
+        self._reset_cells_visited()
+    
+    def solve(self):
+        """
+        Solve the maze using a depth-first algorithm.
+        Returns True if the maze was solved, False otherwise.
+        """
+        # Reset visited flags before solving
+        self._reset_cells_visited()
+        # Start solving from the entrance cell (top-left)
+        return self._solve_r(0, 0)
+    
+    def _solve_r(self, i, j):
+        """
+        Recursive helper method for solving the maze.
+        Returns True if the current cell is the end cell or leads to it.
+        Returns False if the current cell is a dead end.
+        """
+        # Animate the solving process
+        self._animate()
+        
+        # Mark the current cell as visited
+        self._cells[i][j].visited = True
+        
+        # If we reached the end cell (bottom-right), we solved the maze
+        if i == self._num_rows - 1 and j == self._num_cols - 1:
+            return True
+        
+        # Try each direction: up, right, down, left
+        
+        # Up
+        if i > 0 and not self._cells[i][j].has_top_wall and not self._cells[i-1][j].visited:
+            # Draw a move to the cell above
+            self._cells[i][j].draw_move(self._cells[i-1][j])
+            
+            # If the path through the cell above leads to the end, we're done
+            if self._solve_r(i-1, j):
+                return True
+            
+            # Otherwise, undo the move (it's a dead end)
+            self._cells[i][j].draw_move(self._cells[i-1][j], True)
+        
+        # Right
+        if j < self._num_cols - 1 and not self._cells[i][j].has_right_wall and not self._cells[i][j+1].visited:
+            # Draw a move to the cell to the right
+            self._cells[i][j].draw_move(self._cells[i][j+1])
+            
+            # If the path through the cell to the right leads to the end, we're done
+            if self._solve_r(i, j+1):
+                return True
+            
+            # Otherwise, undo the move (it's a dead end)
+            self._cells[i][j].draw_move(self._cells[i][j+1], True)
+        
+        # Down
+        if i < self._num_rows - 1 and not self._cells[i][j].has_bottom_wall and not self._cells[i+1][j].visited:
+            # Draw a move to the cell below
+            self._cells[i][j].draw_move(self._cells[i+1][j])
+            
+            # If the path through the cell below leads to the end, we're done
+            if self._solve_r(i+1, j):
+                return True
+            
+            # Otherwise, undo the move (it's a dead end)
+            self._cells[i][j].draw_move(self._cells[i+1][j], True)
+        
+        # Left
+        if j > 0 and not self._cells[i][j].has_left_wall and not self._cells[i][j-1].visited:
+            # Draw a move to the cell to the left
+            self._cells[i][j].draw_move(self._cells[i][j-1])
+            
+            # If the path through the cell to the left leads to the end, we're done
+            if self._solve_r(i, j-1):
+                return True
+            
+            # Otherwise, undo the move (it's a dead end)
+            self._cells[i][j].draw_move(self._cells[i][j-1], True)
+        
+        # If none of the directions worked out, this cell is a dead end
+        return False
     
     def _create_cells(self):
         # Initialize the cells as a 2D grid (list of lists)
@@ -51,6 +131,12 @@ class Maze:
     def _break_walls(self):
         # Start the recursive wall-breaking process from the entrance cell
         self._break_walls_r(0, 0)
+    
+    def _reset_cells_visited(self):
+        # Reset the visited property of all cells to False
+        for i in range(self._num_rows):
+            for j in range(self._num_cols):
+                self._cells[i][j].visited = False
     
     def _break_walls_r(self, i, j):
         # Mark the current cell as visited

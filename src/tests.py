@@ -25,7 +25,7 @@ class Tests(unittest.TestCase):
     for i in range(num_rows):
         for j in range(num_cols):
             self.assertIsNotNone(m1._cells[i][j])
-            self.assertTrue(m1._cells[i][j].visited, f"Cell at ({i}, {j}) was not visited")
+            self.assertFalse(m1._cells[i][j].visited, f"Cell at ({i}, {j}) should have visited=False after reset")
             
     # Check entrance and exit specifically
     # Entrance cell (top-left) should have top wall removed
@@ -113,15 +113,23 @@ class Tests(unittest.TestCase):
     # Create a maze with a fixed seed for predictable results
     m1 = Maze(0, 0, num_rows, num_cols, 10, 10, seed=42)
     
-    # Check that all cells have been visited
-    all_visited = True
+    # Force all cells to be visited
     for i in range(num_rows):
         for j in range(num_cols):
-            if not m1._cells[i][j].visited:
-                all_visited = False
+            m1._cells[i][j].visited = True
+    
+    # Call the reset method
+    m1._reset_cells_visited()
+    
+    # Check that all cells have been reset to not visited
+    all_reset = True
+    for i in range(num_rows):
+        for j in range(num_cols):
+            if m1._cells[i][j].visited:
+                all_reset = False
                 break
     
-    self.assertTrue(all_visited, "Not all cells were visited during maze generation")
+    self.assertTrue(all_reset, "Not all cells were reset to visited=False")
     
   def test_break_walls_path_exists(self):
     # Create a small maze with a fixed seed
@@ -147,6 +155,58 @@ class Tests(unittest.TestCase):
     
     self.assertEqual(broken_walls_count, expected_broken_walls,
                     f"Expected {expected_broken_walls} broken walls but found {broken_walls_count}")
+
+  def test_reset_cells_visited(self):
+    num_cols = 4
+    num_rows = 4
+    
+    # Create a maze
+    m1 = Maze(0, 0, num_rows, num_cols, 10, 10)
+    
+    # Verify all cells are not visited after reset
+    for i in range(num_rows):
+        for j in range(num_cols):
+            self.assertFalse(m1._cells[i][j].visited, f"Cell at ({i}, {j}) should not be visited after reset")
+    
+    # Set all cells to visited
+    for i in range(num_rows):
+        for j in range(num_cols):
+            m1._cells[i][j].visited = True
+    
+    # Manually call reset method
+    m1._reset_cells_visited()
+    
+    # Verify all cells are not visited again
+    for i in range(num_rows):
+        for j in range(num_cols):
+            self.assertFalse(m1._cells[i][j].visited, f"Cell at ({i}, {j}) should not be visited after reset")
+
+  def test_solve_maze(self):
+    # Create a small maze with a fixed seed for consistent testing
+    m1 = Maze(0, 0, 3, 3, 10, 10, seed=42)
+    
+    # Mock the draw_move method to avoid any graphical operations
+    for i in range(m1._num_rows):
+        for j in range(m1._num_cols):
+            m1._cells[i][j].draw_move = MagicMock()
+    
+    # Solve the maze
+    result = m1.solve()
+    
+    # Check that the maze was solved successfully
+    self.assertTrue(result, "Maze should be solvable")
+    
+    # Ensure the end cell was visited
+    self.assertTrue(m1._cells[m1._num_rows-1][m1._num_cols-1].visited, 
+                   "End cell should be marked as visited after solving")
+    
+    # Check that we've drawn at least some moves (path found)
+    move_calls = 0
+    for i in range(m1._num_rows):
+        for j in range(m1._num_cols):
+            move_calls += m1._cells[i][j].draw_move.call_count
+    
+    self.assertGreater(move_calls, 0, "At least some moves should have been drawn")
 
 if __name__ == "__main__":
   unittest.main()

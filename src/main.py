@@ -19,6 +19,13 @@ def main():
     # Use a specific value (e.g., seed=42) for consistent maze generation during debugging
     maze = Maze(margin, margin, num_rows, num_cols, cell_size_x, cell_size_y, win, seed=None)
     
+    # Solve the maze
+    is_solved = maze.solve()
+    if is_solved:
+        print("Maze solved successfully!")
+    else:
+        print("Could not solve the maze!")
+    
     win.wait_for_close()
 
 main()
