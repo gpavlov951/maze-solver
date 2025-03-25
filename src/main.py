@@ -14,7 +14,10 @@ def main():
     cell_size_y = (screen_y - 2 * margin) / num_rows
 
     win = Window(screen_x, screen_y)
-    maze = Maze(margin, margin, num_rows, num_cols, cell_size_x, cell_size_y, win)
+    
+    # Use seed=None for random maze every time
+    # Use a specific value (e.g., seed=42) for consistent maze generation during debugging
+    maze = Maze(margin, margin, num_rows, num_cols, cell_size_x, cell_size_y, win, seed=None)
     
     win.wait_for_close()
 
